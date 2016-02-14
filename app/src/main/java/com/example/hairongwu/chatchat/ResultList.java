@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Created by hairongwu on 2/9/16.
  */
-public class ResultList {
+public class    ResultList {
 
         @SerializedName("timestamp")
         @Expose
@@ -21,7 +21,7 @@ public class ResultList {
         public String userId;
         @SerializedName("message_id")
         @Expose
-        public Integer messageId;
+        public String messageId;
 
 
     public ResultList(){
@@ -37,7 +37,7 @@ public class ResultList {
 
     public ResultList(String timestamp, String message,
                       String nickname, String userId,
-                      Integer messageId){
+                      String messageId){
         this.timestamp =timestamp;
         this.message   = message;
         this.nickname  = nickname;
@@ -58,6 +58,6 @@ public class ResultList {
     public String getUserId(){return userId;}
     public void setUserId(String userId){this.userId=userId;}
 
-    public Integer getMessageId(){return messageId;}
-    public void setMessageId(Integer messageId){this.messageId=messageId;}
+    public String getMessageId(){return messageId;}
+    public void setMessageId(String messageId){this.messageId=messageId;}
 }

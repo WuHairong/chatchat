@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ChatChat</string>
+    <string name="nickname">enter your nick name!</string>
+    <string name="submit">submit</string>
+    <string name="start_chat">start chat</string>
+    <string name="refresh">refresh</string>
+    <string name="send">send</string>
+    <string name="content">enter content to post</string>
 </resources>
