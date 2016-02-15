@@ -213,6 +213,14 @@ public class SearchActivity extends AppCompatActivity {
             public void onResponse(Response<Example> response) {
                 aList.clear();//remove previous content
                 //need to put reponse result into aList
+                Log.i(LOG_TAG, "44444 Code is: " + response.code());
+                Log.i(LOG_TAG, "44444 Code is: " + response.body());
+                Log.i(LOG_TAG, "44444 Code is: " + response.body().result);
+                if(response.code() == 500 ||response.code() == 400 ){
+                    return;
+                }else if(response.body().result == "error"){
+                    return;
+                }
 
                 ListElement aListElement = new ListElement();
                 int i = response.body().resultList.size();
@@ -268,7 +276,9 @@ public class SearchActivity extends AppCompatActivity {
 
         });
     }
+        public void onClick(View view){
 
+        }
 
 
 
