@@ -18,6 +18,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import com.example.hairongwu.chatchat.Example;
+import com.example.hairongwu.chatchat.ResultList;
+
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import okhttp3.OkHttpClient;
@@ -35,14 +43,16 @@ import retrofit2.http.Query;
 public class SearchActivity extends AppCompatActivity {
 
     private LocationData locationData = LocationData.getLocationData();
-    private String lat;
-    private String lng;
-    private String user_id;
-    private String nickname = "Hobbes";
+
+    private String lat = "9.99999";
+    private String lng = "10.0001";
+    private String user_id = "39";
+    private String nickname;
     private String message = "Tuna";
     private String message_id = "8755";
     public static String LOG_TAG = "MyApplication";
-
+    private MyAdapter adapter;
+    private ArrayList<ListElement> aList;
 
     public interface postService {
 
@@ -53,11 +63,7 @@ public class SearchActivity extends AppCompatActivity {
                                @Query("nickname") String nickname,    //nickname
                                @Query("message") String message,    //message send
                                @Query("message_id") String message_id    //message_id
-
-
-
         );
-
     }
 
     public interface getService {
@@ -65,9 +71,7 @@ public class SearchActivity extends AppCompatActivity {
         Call<Example> message(@Query("lat") String lat,  //latitude
                               @Query("lng") String lng,  //longitude
                               @Query("user_id") String user_id     //user_id
-
         );
-
     }
 
 
@@ -78,30 +82,29 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
     }
 
+
+
     @Override
     protected void onResume(){
         Intent intent = getIntent();
-        String nickname = intent.getStringExtra(MainActivity.nickname);//get search word
+        nickname = intent.getStringExtra(MainActivity.nickname);//get search word
+        //lat =  Double.toString(locationData.getLocation().getLatitude());
+        //lng = Double.toString(locationData.getLocation().getLongitude());
+        aList = new ArrayList<ListElement>();
+        adapter = new MyAdapter(this, R.layout.list_element, aList);
+        ListView myListView = (ListView) findViewById(R.id.listView);
+        myListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
-
-        // Gets the settings, and creates a random user id if missing.
         //SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         //user_id = settings.getString("user_id", null);
         Log.i(LOG_TAG, "user_id"+ " is: " + user_id);
         if (user_id == null) {
-            // Creates a random one, and sets it.
-            //SecureRandomString srs = new SecureRandomString();
             user_id = getRandom();
-            //Log.i(LOG_TAG, "00"+ "Code is: " + user_id);
-            //SharedPreferences.Editor e = settings.edit();
-            //e.putString("user_id", user_id);
-            //e.commit();
+
         }
         //Log.i(LOG_TAG, "user_id"+ "00 is: " + user_id);
 
-        // Let's register the user.
-        // In truth, it may be better to keep a flag in preferences that tells us
-        // whether we have already registered?
 
         //Log.i(LOG_TAG, "22Code is: " + lat);
         //Log.i(LOG_TAG, "22Code is: " + lng);
@@ -111,6 +114,9 @@ public class SearchActivity extends AppCompatActivity {
         Log.i(LOG_TAG, "message_id is: " + message_id);
         //Postservice(lat, lng, user_id, nickname, message, message_id);
         Getservice(lat, lng, user_id);
+        //Log.i(LOG_TAG, "4444The aList size is: " + aList.size());
+
+
         super.onResume();
 
     }
@@ -145,11 +151,8 @@ public class SearchActivity extends AppCompatActivity {
 
         postService service = retrofit.create(postService.class);
 
-        if(LocationData.getLocationData() == null ) {
-            return;
-        }
-        lat =  Double.toString(locationData.getLocation().getLatitude());
-        lng = Double.toString(locationData.getLocation().getLongitude());
+
+
         Log.i(LOG_TAG, "9999999Code is: " + lat);
         Log.i(LOG_TAG, "9999999Code is: " + lng);
 
@@ -197,25 +200,62 @@ public class SearchActivity extends AppCompatActivity {
                 .client(httpClient)    //add logging
                 .build();
 
+
         getService service = retrofit.create(getService.class);
+        //Log.i(LOG_TAG, "lat is: " + lat);
+        //Log.i(LOG_TAG, "lng is: " + lng);
         Call<Example> queryResponseCall =
                 service.message(lat, lng, user_id);
+        //Log.i(LOG_TAG, "lat is: " + lat);
+        //Log.i(LOG_TAG, "lng is: " + lng);
         queryResponseCall.enqueue(new Callback<Example>() {
             @Override
             public void onResponse(Response<Example> response) {
-                Log.i(LOG_TAG, "44 Code is: " + response.code());
-                Log.i(LOG_TAG, "44 The body is: " + response.body());
-                Log.i(LOG_TAG, "44The result is: " + response.body().result);
-                //Log.i(LOG_TAG, "44The resultList is: " + response.body().resultList.get(0).timestamp);
-                for (int i = 0; i < response.body().resultList.size(); ++i) {
-                    Log.i(LOG_TAG, "45The timestamp is: " + response.body().resultList.get(i).timestamp);
-                    Log.i(LOG_TAG, "45The message is: " + response.body().resultList.get(i).message);
-                    Log.i(LOG_TAG, "45The nickname is: " + response.body().resultList.get(i).nickname);
-                    Log.i(LOG_TAG, "45The userId is: " + response.body().resultList.get(i).userId);
-                    Log.i(LOG_TAG, "45The messageId is: " + response.body().resultList.get(i).messageId);
-                }
+                aList.clear();//remove previous content
+                //need to put reponse result into aList
 
+                ListElement aListElement = new ListElement();
+                int i = response.body().resultList.size();
+                if (i==0){
+                    aListElement.setMessage("no result");
+                    aListElement.setTimestamp("none");
+                    aListElement.setNickname("none");
+                    aListElement.setUser_id("none");
+                    aList.add(0, aListElement);
+                }else {
+                    Log.i(LOG_TAG, "44 Code is: " + response.code());
+                    Log.i(LOG_TAG, "44 The body is: " + response.body());
+                    Log.i(LOG_TAG, "44The result is: " + response.body().result);
+                    Log.i(LOG_TAG, "44The List size is: " + response.body().resultList.size());
+                    for (int j = 0; j < i; ++j) {
+                        String timestamp = response.body().resultList.get(j).timestamp;
+                        String message   = response.body().resultList.get(j).message;
+                        String nickname  = response.body().resultList.get(j).nickname;
+                        String userId    = response.body().resultList.get(j).userId;
+                        aListElement.setMessage(message);
+                        aListElement.setTimestamp(timestamp);
+                        aListElement.setNickname(nickname);
+                        aListElement.setUser_id(userId);
+                        aList.add(j, aListElement);
+                        //Log.i(LOG_TAG, "45The timestamp is: " + aList.get(j).timestamp);
+                        //Log.i(LOG_TAG, "45The message is: " + aList.get(j).message);
+                        //Log.i(LOG_TAG, "45The nickname is: " + aList.get(j).nickname);
+                        //Log.i(LOG_TAG, "45The userId is: " + aList.get(j).user_id);
+
+                    }
+                }
+                adapter.notifyDataSetChanged();
+
+                for(int j=0; j<aList.size();++j) {
+                    Log.i(LOG_TAG, "The message is: " + aList.get(j).message);
+                    Log.i(LOG_TAG, "The timestamp is: " + aList.get(j).timestamp);
+                    Log.i(LOG_TAG, "The nickname is: " + aList.get(j).nickname);
+                    Log.i(LOG_TAG, "The user_id is: " + aList.get(j).user_id);
+                }
             }
+
+
+
 
             //need to show string content on the screen
 
@@ -223,6 +263,9 @@ public class SearchActivity extends AppCompatActivity {
             public void onFailure(Throwable t) {
                 // Log error here since request failed
             }
+
+
+
         });
     }
 
