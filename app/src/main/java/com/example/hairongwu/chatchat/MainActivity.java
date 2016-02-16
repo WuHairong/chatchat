@@ -20,10 +20,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.Random;
+
 
 public class MainActivity extends AppCompatActivity {
     public static String LOG_TAG = "My log tag";
     public static String nickname;
+    public static String user_id;
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     private LocationData locationData = LocationData.getLocationData();//store location to share between activities
@@ -32,9 +35,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //user_id = getRandom();
+
+
     }
 
 
+
+    //generate random number for user_id
+    public String getRandom(){
+        Random ran= new Random();
+        int randomInt = ran.nextInt(100)+1;
+        Log.i(LOG_TAG, "random Num is: " + randomInt);
+        return ""+ randomInt;
+    }
 
     @Override
     public void onResume(){
@@ -174,27 +188,11 @@ public class MainActivity extends AppCompatActivity {
             boolean isBetter = ((lastLocation == null) ||
                     newAccuracy < lastLocation.getAccuracy() + (newTime - lastLocation.getTime()));
 
-            //if(isBetter){
-            //    Log.i(LOG_TAG, "8888888: "+ "True");
-            //}else{
-            //    Log.i(LOG_TAG, "8888888: "+"False");
-            //}
+
             if (isBetter) {
                 // We replace the old estimate by this one.
                 locationData.setLocation(location);
-                //Log.i(LOG_TAG, "8888888: " + locationData.getLocation());
-                //Log.i(LOG_TAG, "8888888: " + locationData.getLocation().getLatitude());
-                //Log.i(LOG_TAG, "8888888: " + locationData.getLocation().getLatitude());
-                //Log.i(LOG_TAG, "8888888: " + locationData.getLocation().getLatitude());
-                //Log.i(LOG_TAG, "9999999: " + locationData.getLocation().getLongitude());
-                //Log.i(LOG_TAG, "9999999: " + locationData.getLocation().getLongitude());
-                //Log.i(LOG_TAG, "9999999: " + locationData.getLocation().getLongitude());
-                //Log.i(LOG_TAG, "9999999: " + locationData.getLocation().getLongitude());
 
-                //Now we have the location.
-                //Button searchButton = (Button) findViewById(R.id.searchButton);
-                //if(checkLocationAllowed())
-                //    searchButton.setEnabled(true);//We must enable search button
             }
         }
 
@@ -214,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = (EditText) findViewById(R.id.editText2);
         nickname = editText.getText().toString();
         intent.putExtra(nickname, editText.getText().toString());
+        intent.putExtra(user_id, getRandom());
         //Log.i(LOG_TAG, "44444: " + editText.getText().toString());
         //Log.i(LOG_TAG, "44444: " + editText.getText().toString());
         //Log.i(LOG_TAG, "44444: " + editText.getText().toString());
